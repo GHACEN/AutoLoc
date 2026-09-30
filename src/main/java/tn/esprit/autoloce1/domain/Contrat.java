@@ -1,0 +1,32 @@
+package tn.esprit.autoloce1.domain;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "contrat")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Contrat {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idContrat;
+
+    @Column(name = "date_signature", nullable = false)
+    private LocalDate dateSignature;
+
+    @Column(name = "montant_total", nullable = false, precision = 10, scale = 2)
+    private BigDecimal montantTotal;
+
+    @Column(nullable = false)
+    private boolean valide;
+}
