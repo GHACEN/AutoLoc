@@ -28,4 +28,8 @@ public class Maintenance {
 
     @Column(nullable = false, length = 200)
     private String description;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "vehicule_id", nullable = false)
+    private Vehicule vehicule;
 }
