@@ -1,0 +1,151 @@
+{
+  "info": {
+    "_postman_id": "b1a6f0c2-3d47-4c19-9f52-7a0e2c1b8d31",
+    "name": "Atelier 3 - VehiculeController (AutoLoc)",
+    "description": "Requetes de test du controleur Vehicule (couche Controller -> IServiceVehicule -> ServiceVehicule -> VehiculeRepository).\n\nBase URL : {{baseUrl}} (port 8089 + context-path /gestionlocation, cf. application.properties).\n\nPRE-REQUIS IMPORTANT :Vehicule.agence est un @ManyToOne(nullable = false) et Vehicule.equipements est un @ManyToMany.\nIl faut donc au moins une ligne dans la table `agence` (et idéalement dans `equipement`) avant d'appeler POST /vehicule, sinon la contrainte NOT NULL est violee.\nExemple de quick start :\n    INSERT INTO agence (nom, ville, adresse, telephone) VALUES ('Agence Centre', 'Tunis', '12 rue de France', '20000000');\n    INSERT INTO equipement (libelle) VALUES ('GPS');\n\nLes valeurs possibles pour `categorie` : CITADINE, BERLINE, SUV, UTILITAIRE.\nLes valeurs possibles pour `statut` : DISPONIBLE, LOUE, MAINTENANCE.\n\nOrdre de test recommande : 1) GET all 2) GET by id 3) POST 4) PUT 5) DELETE 6) POST multiple.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8089/gestionlocation", "type": "string" },
+    { "key": "idVehicule", "value": "1", "type": "string" },
+    { "key": "idAgence", "value": "1", "type": "string" },
+    { "key": "idEquipement", "value": "1", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. GET /vehicule - Recuperer tous les vehicules",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{baseUrl}}/vehicule",
+          "host": ["{{baseUrl}}"],
+          "path": ["vehicule"]
+        },
+        "description": "Resultat attendu : 200 OK, tableau JSON des vehicules ([] si la base est vide)."
+      }
+    },
+    {
+      "name": "2. GET /vehicule/{idVehicule} - Recuperer un vehicule",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{baseUrl}}/vehicule/{{idVehicule}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["vehicule", "{{idVehicule}}"]
+        },
+        "description": "Resultat attendu : 200 OK avec l'objet Vehicule. Si l'id n'existe pas, le service renvoie null (corps vide) car findById(...).orElse(null)."
+      }
+    },
+    {
+      "name": "3. POST /vehicule - Ajouter un vehicule",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"marque\": \"Peugeot\",\n  \"modele\": \"208\",\n  \"categorie\": \"CITADINE\",\n  \"immatriculation\": \"TN-12345\",\n  \"tarifJournalier\": 45.50,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": { \"idAgence\": {{idAgence}} },\n  \"equipements\": [ { \"idEquipement\": {{idEquipement}} } ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/vehicule",
+          "host": ["{{baseUrl}}"],
+          "path": ["vehicule"]
+        },
+        "description": "Resultat attendu : 200 OK, vehicule enregistre avec idVehicule genere par la sequence.\nSi la contrainte est violee (agence inexistante), une erreur 500 / DataIntegrityViolationException est levee."
+      },
+      "response": [
+        {
+          "name": "200 - Vehicule cree",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"marque\": \"Peugeot\",\n  \"modele\": \"208\",\n  \"categorie\": \"CITADINE\",\n  \"immatriculation\": \"TN-12345\",\n  \"tarifJournalier\": 45.50,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": { \"idAgence\": 1 },\n  \"equipements\": [ { \"idEquipement\": 1 } ]\n}" },
+            "url": { "raw": "{{baseUrl}}/vehicule", "host": ["{{baseUrl}}"], "path": ["vehicule"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"idVehicule\": 1,\n  \"marque\": \"Peugeot\",\n  \"modele\": \"208\",\n  \"categorie\": \"CITADINE\",\n  \"immatriculation\": \"TN-12345\",\n  \"tarifJournalier\": 45.50,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": {\n    \"idAgence\": 1,\n    \"nom\": \"Agence Centre\",\n    \"ville\": \"Tunis\",\n    \"adresse\": \"12 rue de France\",\n    \"telephone\": \"20000000\"\n  },\n  \"equipements\": [\n    { \"idEquipement\": 1, \"libelle\": \"GPS\" }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "4. PUT /vehicule/{idVehicule} - Modifier un vehicule",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"marque\": \"Peugeot\",\n  \"modele\": \"208 GTi\",\n  \"categorie\": \"CITADINE\",\n  \"immatriculation\": \"TN-12345\",\n  \"tarifJournalier\": 55.00,\n  \"statut\": \"MAINTENANCE\",\n  \"agence\": { \"idAgence\": {{idAgence}} }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/vehicule/{{idVehicule}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["vehicule", "{{idVehicule}}"]
+        },
+        "description": "Le controleur force v.setIdVehicule(idVehicule) avant d'appeler updateVehicule. Resultat attendu : 200 OK avec l'objet mis a jour."
+      }
+    },
+    {
+      "name": "5. DELETE /vehicule/{idVehicule} - Supprimer un vehicule",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/vehicule/{{idVehicule}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["vehicule", "{{idVehicule}}"]
+        },
+        "description": "Resultat attendu : 200 OK, corps vide (la methode retourne void). Si le vehicule est lie a une reservation, la suppression peut echouer sur une contrainte de cle etrangere."
+      }
+    },
+    {
+      "name": "6. POST /vehicule/multiple - Ajouter plusieurs vehicules",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "[\n  {\n    \"marque\": \"Renault\",\n    \"modele\": \"Clio\",\n    \"categorie\": \"CITADINE\",\n    \"immatriculation\": \"TN-20001\",\n    \"tarifJournalier\": 35.00,\n    \"statut\": \"DISPONIBLE\",\n    \"agence\": { \"idAgence\": {{idAgence}} },\n    \"equipements\": []\n  },\n  {\n    \"marque\": \"Mercedes\",\n    \"modele\": \"Classe C\",\n    \"categorie\": \"BERLINE\",\n    \"immatriculation\": \"TN-20002\",\n    \"tarifJournalier\": 120.00,\n    \"statut\": \"DISPONIBLE\",\n    \"agence\": { \"idAgence\": {{idAgence}} },\n    \"equipements\": []\n  },\n  {\n    \"marque\": \"Dacia\",\n    \"modele\": \"Duster\",\n    \"categorie\": \"SUV\",\n    \"immatriculation\": \"TN-20003\",\n    \"tarifJournalier\": 60.00,\n    \"statut\": \"LOUE\",\n    \"agence\": { \"idAgence\": {{idAgence}} },\n    \"equipements\": []\n  }\n]"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/vehicule/multiple",
+          "host": ["{{baseUrl}}"],
+          "path": ["vehicule", "multiple"]
+        },
+        "description": "Resultat attendu : 200 OK, tableau JSON des vehicules enregistres (repo.saveAll)."
+      }
+    },
+    {
+      "name": "7. GET /client - Recuperer tous les clients (verif DI globale)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{baseUrl}}/client",
+          "host": ["{{baseUrl}}"],
+          "path": ["client"]
+        },
+        "description": "Meme mecanisme d'injection que pour /vehicule : ClientController -> IServiceClient -> ServiceClient -> ClientRepository."
+      }
+    },
+    {
+      "name": "8. POST /client - Ajouter un client (dateInscription auto)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"Ben Salah\",\n  \"prenom\": \"Ahmed\",\n  \"email\": \"ahmed.bensalah@esprit.tn\",\n  \"telephone\": \"22123456\",\n  \"numPermis\": \"TN-987654\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/client",
+          "host": ["{{baseUrl}}"],
+          "path": ["client"]
+        },
+        "description": "dateInscription n'est pas envoyee : ServiceClient la remplit automatiquement avec LocalDate.now(). Resultat attendu : 200 OK avec dateInscription = date du jour."
+      }
+    }
+  ]
+}

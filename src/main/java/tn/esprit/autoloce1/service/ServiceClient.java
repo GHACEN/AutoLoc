@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import tn.esprit.autoloce1.domain.Client;
 import tn.esprit.autoloce1.repository.ClientRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -18,11 +19,13 @@ public class ServiceClient implements IServiceClient {
 
     @Override
     public Client addClient(Client c) {
+        ensureDateInscription(c);
         return repo.save(c);
     }
 
     @Override
     public Client updateClient(Client c) {
+        ensureDateInscription(c);
         return repo.save(c);
     }
 
@@ -38,6 +41,13 @@ public class ServiceClient implements IServiceClient {
 
     @Override
     public List<Client> addClients(List<Client> clients) {
+        clients.forEach(this::ensureDateInscription);
         return repo.saveAll(clients);
+    }
+
+    private void ensureDateInscription(Client c) {
+        if (c.getDateInscription() == null) {
+            c.setDateInscription(LocalDate.now());
+        }
     }
 }
