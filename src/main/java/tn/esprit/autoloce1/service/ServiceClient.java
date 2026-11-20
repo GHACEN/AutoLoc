@@ -3,7 +3,7 @@ package tn.esprit.autoloce1.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.autoloce1.domain.Client;
-import tn.esprit.autoloce1.repository.ClientRepository;
+import tn.esprit.autoloce1.repository.IClientRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class ServiceClient implements IServiceClient {
-    private final ClientRepository repo;
+    private final IClientRepository repo;
     @Override
     public List<Client> retrieveAllClients() {
         return repo.findAll();

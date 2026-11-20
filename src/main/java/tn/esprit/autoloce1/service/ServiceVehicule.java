@@ -3,7 +3,7 @@ package tn.esprit.autoloce1.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.autoloce1.domain.Vehicule;
-import tn.esprit.autoloce1.repository.VehiculeRepository;
+import tn.esprit.autoloce1.repository.IVehiculeRepository;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ServiceVehicule implements IServiceVehicule {
 
-    private final VehiculeRepository repo;
+    private final IVehiculeRepository repo;
 
     @Override
     public List<Vehicule> retrieveAllVehicules() {
