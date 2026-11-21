@@ -1,5 +1,7 @@
 package tn.esprit.autoloce1.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,6 +33,7 @@ public class Paiement {
     @Column(name = "mode_paiement", nullable = false, length = 20)
     private ModePaiement modePaiement;
 
+    @JsonBackReference("contrat-paiements")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contrat_id", nullable = false)
     private Contrat contrat;

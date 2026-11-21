@@ -1,0 +1,1177 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: AutoLoc - Atelier 5
+description: Tests API REST AutoLoc avec Insomnia. Base URL http://localhost:8080/api.
+meta:
+  id: wrk_autoloc_atelier5
+  created: 1763750000000
+  modified: 1763750000000
+collection:
+  - name: Contrats
+    meta:
+      id: fld_contrats
+      created: 1763750000000
+      modified: 1763750000000
+      sortKey: -9
+    children:
+      - url: "{{ _.baseUrl }}/contrats"
+        name: "GET /contrats - Lister"
+        meta:
+          id: req_contrats_all
+          created: 1763750000001
+          modified: 1763750000001
+          isPrivate: false
+          sortKey: -1
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/contrats/9999"
+        name: "GET /contrats/9999 - Introuvable"
+        meta:
+          id: req_contrats_404
+          created: 1763750000002
+          modified: 1763750000002
+          isPrivate: false
+          sortKey: -2
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 404', () => {
+              insomnia.expect(insomnia.response.code).to.eql(404);
+            });
+      - url: "{{ _.baseUrl }}/contrats"
+        name: "POST /contrats - Créer"
+        meta:
+          id: req_contrats_create
+          created: 1763750000003
+          modified: 1763750000003
+          isPrivate: false
+          sortKey: -3
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "dateSignature": "2026-11-02",
+              "montantTotal": 480.00,
+              "valide": true
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 201', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+            insomnia.environment.set('contratId', insomnia.response.json().idContrat);
+      - url: "{{ _.baseUrl }}/contrats"
+        name: "POST /contrats - Cascade paiements"
+        meta:
+          id: req_contrats_cascade
+          created: 1763750000004
+          modified: 1763750000004
+          isPrivate: false
+          sortKey: -4
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "dateSignature": "2026-11-02",
+              "montantTotal": 480.00,
+              "valide": true,
+              "paiements": [
+                { "montant": 150.00, "datePaiement": "2026-11-02", "modePaiement": "CARTE" },
+                { "montant": 330.00, "datePaiement": "2026-11-06", "modePaiement": "VIREMENT" }
+              ]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 201 cascade', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+            insomnia.environment.set('contratCascadeId', insomnia.response.json().idContrat);
+      - url: "{{ _.baseUrl }}/contrats"
+        name: "POST /contrats - Montant négatif (400)"
+        meta:
+          id: req_contrats_400
+          created: 1763750000005
+          modified: 1763750000005
+          isPrivate: false
+          sortKey: -5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            { "dateSignature": "2026-11-02", "montantTotal": -1, "valide": true }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 400', () => {
+              insomnia.expect(insomnia.response.code).to.eql(400);
+            });
+      - url: "{{ _.baseUrl }}/contrats/{{ _.contratId }}"
+        name: "PUT /contrats/{id} - Modifier"
+        meta:
+          id: req_contrats_update
+          created: 1763750000006
+          modified: 1763750000006
+          isPrivate: false
+          sortKey: -6
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "dateSignature": "2026-11-03",
+              "montantTotal": 520.00,
+              "valide": true
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/contrats/{{ _.contratId }}"
+        name: "DELETE /contrats/{id} - Supprimer"
+        meta:
+          id: req_contrats_delete
+          created: 1763750000007
+          modified: 1763750000007
+          isPrivate: false
+          sortKey: -7
+        method: DELETE
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 204', () => {
+              insomnia.expect(insomnia.response.code).to.eql(204);
+            });
+  - name: Paiements
+    meta:
+      id: fld_paiements
+      created: 1763750000100
+      modified: 1763750000100
+      sortKey: -8
+    children:
+      - url: "{{ _.baseUrl }}/paiements"
+        name: "GET /paiements - Lister"
+        meta:
+          id: req_paiements_all
+          created: 1763750000101
+          modified: 1763750000101
+          isPrivate: false
+          sortKey: -1
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/paiements/9999"
+        name: "GET /paiements/9999 - Introuvable"
+        meta:
+          id: req_paiements_404
+          created: 1763750000102
+          modified: 1763750000102
+          isPrivate: false
+          sortKey: -2
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 404', () => {
+              insomnia.expect(insomnia.response.code).to.eql(404);
+            });
+      - url: "{{ _.baseUrl }}/paiements"
+        name: "POST /paiements - Refusé (405)"
+        meta:
+          id: req_paiements_405
+          created: 1763750000103
+          modified: 1763750000103
+          isPrivate: false
+          sortKey: -3
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            { "montant": 10.00 }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 405', () => {
+              insomnia.expect(insomnia.response.code).to.eql(405);
+            });
+  - name: Agences
+    meta:
+      id: fld_agences
+      created: 1763750000200
+      modified: 1763750000200
+      sortKey: -7
+    children:
+      - url: "{{ _.baseUrl }}/agences"
+        name: "GET /agences - Lister"
+        meta:
+          id: req_agences_all
+          created: 1763750000201
+          modified: 1763750000201
+          isPrivate: false
+          sortKey: -1
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/agences/9999"
+        name: "GET /agences/9999 - Introuvable"
+        meta:
+          id: req_agences_404
+          created: 1763750000202
+          modified: 1763750000202
+          isPrivate: false
+          sortKey: -2
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 404', () => {
+              insomnia.expect(insomnia.response.code).to.eql(404);
+            });
+      - url: "{{ _.baseUrl }}/agences"
+        name: "POST /agences - Créer"
+        meta:
+          id: req_agences_create
+          created: 1763750000203
+          modified: 1763750000203
+          isPrivate: false
+          sortKey: -3
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nom": "Agence Centre",
+              "ville": "Tunis",
+              "adresse": "12 rue de France",
+              "telephone": "20000000"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 201', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+            insomnia.environment.set('agenceId', insomnia.response.json().idAgence);
+      - url: "{{ _.baseUrl }}/agences"
+        name: "POST /agences - Nom vide (400)"
+        meta:
+          id: req_agences_400
+          created: 1763750000204
+          modified: 1763750000204
+          isPrivate: false
+          sortKey: -4
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            { "nom": "", "ville": "Tunis", "telephone": "20000000" }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 400', () => {
+              insomnia.expect(insomnia.response.code).to.eql(400);
+            });
+      - url: "{{ _.baseUrl }}/agences/{{ _.agenceId }}"
+        name: "PUT /agences/{id} - Modifier"
+        meta:
+          id: req_agences_update
+          created: 1763750000205
+          modified: 1763750000205
+          isPrivate: false
+          sortKey: -5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nom": "Agence Centre 2",
+              "ville": "Tunis",
+              "adresse": "14 rue de France",
+              "telephone": "20000001"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/agences/{{ _.agenceId }}"
+        name: "DELETE /agences/{id} - Supprimer"
+        meta:
+          id: req_agences_delete
+          created: 1763750000206
+          modified: 1763750000206
+          isPrivate: false
+          sortKey: -6
+        method: DELETE
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 204', () => {
+              insomnia.expect(insomnia.response.code).to.eql(204);
+            });
+  - name: Employes
+    meta:
+      id: fld_employes
+      created: 1763750000300
+      modified: 1763750000300
+      sortKey: -6
+    children:
+      - url: "{{ _.baseUrl }}/employes"
+        name: "GET /employes - Lister"
+        meta:
+          id: req_employes_all
+          created: 1763750000301
+          modified: 1763750000301
+          isPrivate: false
+          sortKey: -1
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/employes/9999"
+        name: "GET /employes/9999 - Introuvable"
+        meta:
+          id: req_employes_404
+          created: 1763750000302
+          modified: 1763750000302
+          isPrivate: false
+          sortKey: -2
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 404', () => {
+              insomnia.expect(insomnia.response.code).to.eql(404);
+            });
+      - url: "{{ _.baseUrl }}/employes"
+        name: "POST /employes - Créer"
+        meta:
+          id: req_employes_create
+          created: 1763750000303
+          modified: 1763750000303
+          isPrivate: false
+          sortKey: -3
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nom": "Ben Ali",
+              "prenom": "Sara",
+              "role": "AGENT",
+              "agence": { "idAgence": {{ _.agenceId }} }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 201', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+            insomnia.environment.set('employeId', insomnia.response.json().idEmploye);
+      - url: "{{ _.baseUrl }}/employes"
+        name: "POST /employes - Nom vide (400)"
+        meta:
+          id: req_employes_400
+          created: 1763750000304
+          modified: 1763750000304
+          isPrivate: false
+          sortKey: -4
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            { "nom": "", "prenom": "Sara", "role": "AGENT", "agence": { "idAgence": {{ _.agenceId }} } }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 400', () => {
+              insomnia.expect(insomnia.response.code).to.eql(400);
+            });
+      - url: "{{ _.baseUrl }}/employes/{{ _.employeId }}"
+        name: "PUT /employes/{id} - Modifier"
+        meta:
+          id: req_employes_update
+          created: 1763750000305
+          modified: 1763750000305
+          isPrivate: false
+          sortKey: -5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nom": "Ben Ali",
+              "prenom": "Sara",
+              "role": "MANAGER",
+              "agence": { "idAgence": {{ _.agenceId }} }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/employes/{{ _.employeId }}"
+        name: "DELETE /employes/{id} - Supprimer"
+        meta:
+          id: req_employes_delete
+          created: 1763750000306
+          modified: 1763750000306
+          isPrivate: false
+          sortKey: -6
+        method: DELETE
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 204', () => {
+              insomnia.expect(insomnia.response.code).to.eql(204);
+            });
+  - name: Vehicules
+    meta:
+      id: fld_vehicules
+      created: 1763750000400
+      modified: 1763750000400
+      sortKey: -5
+    children:
+      - url: "{{ _.baseUrl }}/vehicules"
+        name: "GET /vehicules - Lister"
+        meta:
+          id: req_vehicules_all
+          created: 1763750000401
+          modified: 1763750000401
+          isPrivate: false
+          sortKey: -1
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/vehicules/9999"
+        name: "GET /vehicules/9999 - Introuvable"
+        meta:
+          id: req_vehicules_404
+          created: 1763750000402
+          modified: 1763750000402
+          isPrivate: false
+          sortKey: -2
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 404', () => {
+              insomnia.expect(insomnia.response.code).to.eql(404);
+            });
+      - url: "{{ _.baseUrl }}/vehicules"
+        name: "POST /vehicules - Créer"
+        meta:
+          id: req_vehicules_create
+          created: 1763750000403
+          modified: 1763750000403
+          isPrivate: false
+          sortKey: -3
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "marque": "Peugeot",
+              "modele": "208",
+              "categorie": "CITADINE",
+              "immatriculation": "TN-12345",
+              "tarifJournalier": 45.50,
+              "statut": "DISPONIBLE",
+              "agence": { "idAgence": {{ _.agenceId }} },
+              "equipements": [{ "idEquipement": {{ _.equipementId }} }]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 201', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+            insomnia.environment.set('vehiculeId', insomnia.response.json().idVehicule);
+      - url: "{{ _.baseUrl }}/vehicules"
+        name: "POST /vehicules - Tarif négatif (400)"
+        meta:
+          id: req_vehicules_400
+          created: 1763750000404
+          modified: 1763750000404
+          isPrivate: false
+          sortKey: -4
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "marque": "Peugeot",
+              "modele": "208",
+              "categorie": "CITADINE",
+              "immatriculation": "TN-99999",
+              "tarifJournalier": -1,
+              "statut": "DISPONIBLE",
+              "agence": { "idAgence": {{ _.agenceId }} }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 400', () => {
+              insomnia.expect(insomnia.response.code).to.eql(400);
+            });
+      - url: "{{ _.baseUrl }}/vehicules/{{ _.vehiculeId }}"
+        name: "PUT /vehicules/{id} - Modifier"
+        meta:
+          id: req_vehicules_update
+          created: 1763750000405
+          modified: 1763750000405
+          isPrivate: false
+          sortKey: -5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "marque": "Peugeot",
+              "modele": "208 GTi",
+              "categorie": "CITADINE",
+              "immatriculation": "TN-12345",
+              "tarifJournalier": 55.00,
+              "statut": "DISPONIBLE",
+              "agence": { "idAgence": {{ _.agenceId }} }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/vehicules/{{ _.vehiculeId }}"
+        name: "DELETE /vehicules/{id} - Supprimer"
+        meta:
+          id: req_vehicules_delete
+          created: 1763750000406
+          modified: 1763750000406
+          isPrivate: false
+          sortKey: -6
+        method: DELETE
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 204', () => {
+              insomnia.expect(insomnia.response.code).to.eql(204);
+            });
+  - name: Equipements
+    meta:
+      id: fld_equipements
+      created: 1763750000500
+      modified: 1763750000500
+      sortKey: -4
+    children:
+      - url: "{{ _.baseUrl }}/equipements"
+        name: "GET /equipements - Lister"
+        meta:
+          id: req_equipements_all
+          created: 1763750000501
+          modified: 1763750000501
+          isPrivate: false
+          sortKey: -1
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/equipements/9999"
+        name: "GET /equipements/9999 - Introuvable"
+        meta:
+          id: req_equipements_404
+          created: 1763750000502
+          modified: 1763750000502
+          isPrivate: false
+          sortKey: -2
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 404', () => {
+              insomnia.expect(insomnia.response.code).to.eql(404);
+            });
+      - url: "{{ _.baseUrl }}/equipements"
+        name: "POST /equipements - Créer"
+        meta:
+          id: req_equipements_create
+          created: 1763750000503
+          modified: 1763750000503
+          isPrivate: false
+          sortKey: -3
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            { "libelle": "GPS" }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 201', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+            insomnia.environment.set('equipementId', insomnia.response.json().idEquipement);
+      - url: "{{ _.baseUrl }}/equipements"
+        name: "POST /equipements - Libellé vide (400)"
+        meta:
+          id: req_equipements_400
+          created: 1763750000504
+          modified: 1763750000504
+          isPrivate: false
+          sortKey: -4
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            { "libelle": "" }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 400', () => {
+              insomnia.expect(insomnia.response.code).to.eql(400);
+            });
+      - url: "{{ _.baseUrl }}/equipements/{{ _.equipementId }}"
+        name: "PUT /equipements/{id} - Modifier"
+        meta:
+          id: req_equipements_update
+          created: 1763750000505
+          modified: 1763750000505
+          isPrivate: false
+          sortKey: -5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            { "libelle": "GPS + Caméra" }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/equipements/{{ _.equipementId }}"
+        name: "DELETE /equipements/{id} - Supprimer"
+        meta:
+          id: req_equipements_delete
+          created: 1763750000506
+          modified: 1763750000506
+          isPrivate: false
+          sortKey: -6
+        method: DELETE
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 204', () => {
+              insomnia.expect(insomnia.response.code).to.eql(204);
+            });
+  - name: Clients
+    meta:
+      id: fld_clients
+      created: 1763750000600
+      modified: 1763750000600
+      sortKey: -3
+    children:
+      - url: "{{ _.baseUrl }}/clients"
+        name: "GET /clients - Lister"
+        meta:
+          id: req_clients_all
+          created: 1763750000601
+          modified: 1763750000601
+          isPrivate: false
+          sortKey: -1
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/clients/9999"
+        name: "GET /clients/9999 - Introuvable"
+        meta:
+          id: req_clients_404
+          created: 1763750000602
+          modified: 1763750000602
+          isPrivate: false
+          sortKey: -2
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 404', () => {
+              insomnia.expect(insomnia.response.code).to.eql(404);
+            });
+      - url: "{{ _.baseUrl }}/clients"
+        name: "POST /clients - Créer"
+        meta:
+          id: req_clients_create
+          created: 1763750000603
+          modified: 1763750000603
+          isPrivate: false
+          sortKey: -3
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nom": "Ben Salah",
+              "prenom": "Ahmed",
+              "email": "ahmed@esprit.tn",
+              "telephone": "22123456",
+              "numPermis": "TN-987654"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 201', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+            insomnia.environment.set('clientId', insomnia.response.json().idClient);
+      - url: "{{ _.baseUrl }}/clients"
+        name: "POST /clients - Email vide (400)"
+        meta:
+          id: req_clients_400
+          created: 1763750000604
+          modified: 1763750000604
+          isPrivate: false
+          sortKey: -4
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            { "nom": "Ben Salah", "email": "" }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 400', () => {
+              insomnia.expect(insomnia.response.code).to.eql(400);
+            });
+      - url: "{{ _.baseUrl }}/clients/{{ _.clientId }}"
+        name: "PUT /clients/{id} - Modifier"
+        meta:
+          id: req_clients_update
+          created: 1763750000605
+          modified: 1763750000605
+          isPrivate: false
+          sortKey: -5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nom": "Ben Salah",
+              "prenom": "Ahmed",
+              "email": "ahmed.bensalah@esprit.tn",
+              "telephone": "22123457",
+              "numPermis": "TN-987654"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/clients/{{ _.clientId }}"
+        name: "DELETE /clients/{id} - Supprimer"
+        meta:
+          id: req_clients_delete
+          created: 1763750000606
+          modified: 1763750000606
+          isPrivate: false
+          sortKey: -6
+        method: DELETE
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 204', () => {
+              insomnia.expect(insomnia.response.code).to.eql(204);
+            });
+  - name: Reservations
+    meta:
+      id: fld_reservations
+      created: 1763750000700
+      modified: 1763750000700
+      sortKey: -2
+    children:
+      - url: "{{ _.baseUrl }}/reservations"
+        name: "GET /reservations - Lister"
+        meta:
+          id: req_reservations_all
+          created: 1763750000701
+          modified: 1763750000701
+          isPrivate: false
+          sortKey: -1
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/reservations/9999"
+        name: "GET /reservations/9999 - Introuvable"
+        meta:
+          id: req_reservations_404
+          created: 1763750000702
+          modified: 1763750000702
+          isPrivate: false
+          sortKey: -2
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 404', () => {
+              insomnia.expect(insomnia.response.code).to.eql(404);
+            });
+      - url: "{{ _.baseUrl }}/reservations"
+        name: "POST /reservations - Créer"
+        meta:
+          id: req_reservations_create
+          created: 1763750000703
+          modified: 1763750000703
+          isPrivate: false
+          sortKey: -3
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "dateDebut": "2026-11-20",
+              "dateFin": "2026-11-25",
+              "statut": "CONFIRMEE",
+              "client": { "idClient": {{ _.clientId }} },
+              "vehicule": { "idVehicule": {{ _.vehiculeId }} }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 201', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+            insomnia.environment.set('reservationId', insomnia.response.json().idReservation);
+      - url: "{{ _.baseUrl }}/reservations"
+        name: "POST /reservations - Date fin antérieure (400)"
+        meta:
+          id: req_reservations_400
+          created: 1763750000704
+          modified: 1763750000704
+          isPrivate: false
+          sortKey: -4
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "dateDebut": "2026-11-25",
+              "dateFin": "2026-11-20",
+              "statut": "CONFIRMEE",
+              "client": { "idClient": {{ _.clientId }} },
+              "vehicule": { "idVehicule": {{ _.vehiculeId }} }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 400', () => {
+              insomnia.expect(insomnia.response.code).to.eql(400);
+            });
+      - url: "{{ _.baseUrl }}/reservations/{{ _.reservationId }}"
+        name: "PUT /reservations/{id} - Modifier"
+        meta:
+          id: req_reservations_update
+          created: 1763750000705
+          modified: 1763750000705
+          isPrivate: false
+          sortKey: -5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "dateDebut": "2026-11-21",
+              "dateFin": "2026-11-26",
+              "statut": "TERMINEE",
+              "client": { "idClient": {{ _.clientId }} },
+              "vehicule": { "idVehicule": {{ _.vehiculeId }} }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/reservations/{{ _.reservationId }}"
+        name: "DELETE /reservations/{id} - Supprimer"
+        meta:
+          id: req_reservations_delete
+          created: 1763750000706
+          modified: 1763750000706
+          isPrivate: false
+          sortKey: -6
+        method: DELETE
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 204', () => {
+              insomnia.expect(insomnia.response.code).to.eql(204);
+            });
+  - name: Maintenances
+    meta:
+      id: fld_maintenances
+      created: 1763750000800
+      modified: 1763750000800
+      sortKey: -1
+    children:
+      - url: "{{ _.baseUrl }}/maintenances"
+        name: "GET /maintenances - Lister"
+        meta:
+          id: req_maintenances_all
+          created: 1763750000801
+          modified: 1763750000801
+          isPrivate: false
+          sortKey: -1
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/maintenances/9999"
+        name: "GET /maintenances/9999 - Introuvable"
+        meta:
+          id: req_maintenances_404
+          created: 1763750000802
+          modified: 1763750000802
+          isPrivate: false
+          sortKey: -2
+        method: GET
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 404', () => {
+              insomnia.expect(insomnia.response.code).to.eql(404);
+            });
+      - url: "{{ _.baseUrl }}/maintenances"
+        name: "POST /maintenances - Créer"
+        meta:
+          id: req_maintenances_create
+          created: 1763750000803
+          modified: 1763750000803
+          isPrivate: false
+          sortKey: -3
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "dateDebut": "2026-11-20",
+              "dateFin": "2026-11-22",
+              "description": "Vidange",
+              "vehicule": { "idVehicule": {{ _.vehiculeId }} }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 201', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+            insomnia.environment.set('maintenanceId', insomnia.response.json().idMaintenance);
+      - url: "{{ _.baseUrl }}/maintenances"
+        name: "POST /maintenances - Date fin antérieure (400)"
+        meta:
+          id: req_maintenances_400
+          created: 1763750000804
+          modified: 1763750000804
+          isPrivate: false
+          sortKey: -4
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "dateDebut": "2026-11-25",
+              "dateFin": "2026-11-20",
+              "description": "Vidange",
+              "vehicule": { "idVehicule": {{ _.vehiculeId }} }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 400', () => {
+              insomnia.expect(insomnia.response.code).to.eql(400);
+            });
+      - url: "{{ _.baseUrl }}/maintenances/{{ _.maintenanceId }}"
+        name: "PUT /maintenances/{id} - Modifier"
+        meta:
+          id: req_maintenances_update
+          created: 1763750000805
+          modified: 1763750000805
+          isPrivate: false
+          sortKey: -5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "dateDebut": "2026-11-21",
+              "dateFin": "2026-11-23",
+              "description": "Vidange + filtres",
+              "vehicule": { "idVehicule": {{ _.vehiculeId }} }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+      - url: "{{ _.baseUrl }}/maintenances/{{ _.maintenanceId }}"
+        name: "DELETE /maintenances/{id} - Supprimer"
+        meta:
+          id: req_maintenances_delete
+          created: 1763750000806
+          modified: 1763750000806
+          isPrivate: false
+          sortKey: -6
+        method: DELETE
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 204', () => {
+              insomnia.expect(insomnia.response.code).to.eql(204);
+            });
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_autoloc_atelier5
+    created: 1763750000000
+    modified: 1763750000000
+environments:
+  name: Base Environment
+  meta:
+    id: env_autoloc_atelier5
+    created: 1763750000000
+    modified: 1763750000000
+    isPrivate: false
+  data:
+    baseUrl: http://localhost:8080/api
+    agenceId: 1
+    employeId: 1
+    vehiculeId: 1
+    equipementId: 1
+    clientId: 1
+    reservationId: 1
+    contratId: 1
+    contratCascadeId: 1
+    paiementId: 1
+    maintenanceId: 1
+  subEnvironments: []
