@@ -7,18 +7,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tn.esprit.autoloce1.domain.Contrat;
+import tn.esprit.autoloce1.dto.ContratDTO;
 import tn.esprit.autoloce1.service.IContratService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -78,5 +72,19 @@ public class ContratController {
     })
     public void deleteById(@Parameter(description = "Identifiant du contrat") @PathVariable Long id) {
         contratService.deleteById(id);
+    }
+
+    @PostMapping("/affecter")
+    @Operation(summary = "Affecter un contrat a une reservation")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Contrat cree"),
+            @ApiResponse(responseCode = "404", description = "Reservation introuvable"),
+            @ApiResponse(responseCode = "400", description = "Donnees invalides ou reservation ambigue")
+    })
+    public ContratDTO affecterContratAReservation(
+            @Parameter(description = "Date de signature") @RequestParam LocalDate dateSignature,
+            @Parameter(description = "Date de debut") @RequestParam LocalDate dateDebut,
+            @Parameter(description = "Date de fin") @RequestParam LocalDate dateFin) {
+        return contratService.affecterContratAReservation(dateSignature, dateDebut, dateFin);
     }
 }

@@ -1149,6 +1149,123 @@ collection:
             insomnia.test('Statut 204', () => {
               insomnia.expect(insomnia.response.code).to.eql(204);
             });
+  - name: DTO - Affectations
+    meta:
+      id: fld_dto_affectations
+      created: 1763750000900
+      modified: 1763750000900
+      sortKey: 0
+    children:
+      - url: "{{ _.baseUrl }}/reservations/{{ _.reservationId }}/client?nom=Ben%20Salah&prenom=Ahmed"
+        name: "POST /reservations/{id}/client - Affecter client"
+        meta:
+          id: req_dto_reservation_client
+          created: 1763750000901
+          modified: 1763750000901
+          isPrivate: false
+          sortKey: -1
+        method: POST
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+            insomnia.test('Client present', () => {
+              insomnia.expect(insomnia.response.json().client).to.exist;
+            });
+      - url: "{{ _.baseUrl }}/vehicules/{{ _.vehiculeId }}/equipements/{{ _.equipementId }}"
+        name: "POST /vehicules/{id}/equipements/{id} - Affecter equipement"
+        meta:
+          id: req_dto_vehicule_equipement
+          created: 1763750000902
+          modified: 1763750000902
+          isPrivate: false
+          sortKey: -2
+        method: POST
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+            insomnia.test('Equipement present', () => {
+              insomnia.expect(insomnia.response.json().equipements.length).to.be.above(0);
+            });
+      - url: "{{ _.baseUrl }}/vehicules/maintenance?description=Vidange&immatriculation=TN-12345"
+        name: "POST /vehicules/maintenance - Affecter maintenance"
+        meta:
+          id: req_dto_vehicule_maintenance
+          created: 1763750000903
+          modified: 1763750000903
+          isPrivate: false
+          sortKey: -3
+        method: POST
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+            insomnia.test('Maintenance present', () => {
+              insomnia.expect(insomnia.response.json().maintenances.length).to.be.above(0);
+            });
+      - url: "{{ _.baseUrl }}/contrats/affecter?dateSignature=2026-11-23&dateDebut=2026-11-23&dateFin=2026-11-26"
+        name: "POST /contrats/affecter - Affecter contrat"
+        meta:
+          id: req_dto_contrat_reservation
+          created: 1763750000904
+          modified: 1763750000904
+          isPrivate: false
+          sortKey: -4
+        method: POST
+        headers:
+          - name: Accept
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 200', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+            insomnia.test('Date signature present', () => {
+              insomnia.expect(insomnia.response.json().dateSignature).to.exist;
+            });
+      - url: "{{ _.baseUrl }}/reservations/avec-contrat"
+        name: "POST /reservations/avec-contrat - Reservation et contrat"
+        meta:
+          id: req_dto_reservation_contrat
+          created: 1763750000905
+          modified: 1763750000905
+          isPrivate: false
+          sortKey: -5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "clientId": 1,
+              "vehiculeId": 1,
+              "dateDebut": "2026-11-23",
+              "dateFin": "2026-11-26",
+              "dateSignature": "2026-11-23"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            insomnia.test('Statut 201', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+            insomnia.test('Contrat present', () => {
+              insomnia.expect(insomnia.response.json().contrat.idContrat).to.exist;
+            });
 cookieJar:
   name: Default Jar
   meta:

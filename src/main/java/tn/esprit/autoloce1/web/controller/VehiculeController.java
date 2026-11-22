@@ -7,17 +7,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-import tn.esprit.autoloce1.domain.Employe;
+import org.springframework.web.bind.annotation.*;
 import tn.esprit.autoloce1.domain.Vehicule;
+import tn.esprit.autoloce1.dto.VehiculeDTO;
 import tn.esprit.autoloce1.service.IVehiculeService;
 
 import java.util.List;
@@ -80,4 +72,41 @@ public class VehiculeController {
     public void deleteById(@Parameter(description = "Identifiant") @PathVariable Long id) {
         service.deleteById(id);
     }
+
+    @PostMapping("/{idVehicule}/equipements/{idEquipement}")
+    @Operation(summary = "Affecter un vehicule a un equipement")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Affectation effectuee"),
+            @ApiResponse(responseCode = "404", description = "Vehicule ou equipement introuvable")
+    })
+    public VehiculeDTO affecterVehiculeAEquipement(
+            @Parameter(description = "id du vehicule")
+            @PathVariable
+            Long idVehicule,
+
+            @Parameter(description = "id du l'equipement")
+            @PathVariable
+            Long idEquipement
+    ) {
+        return service.affecterVehiculeAEquipement(idVehicule, idEquipement);
+    }
+
+    @PostMapping("/maintenance")
+    @Operation(summary = "Affecter une maintenance a un vehicule")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Maintenance creee"),
+            @ApiResponse(responseCode = "404", description = "Vehicule introuvable"),
+            @ApiResponse(responseCode = "400", description = "Donnees invalides")
+    })
+    public VehiculeDTO affecterMaintenanceAvehicule(
+            @Parameter(description = "Description")
+            @RequestParam
+            String description,
+
+            @Parameter(description = "Immatriculation")
+            @RequestParam
+            String immatriculation) {
+        return service.affecterMaintenanceAvehicule(description, immatriculation);
+    }
+
 }
